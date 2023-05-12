@@ -1,0 +1,6 @@
+/* Write your CSS here */
+li {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+}
