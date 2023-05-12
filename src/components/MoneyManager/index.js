@@ -26,10 +26,11 @@ class MoneyManager extends Component {
     amountList: [],
     title: '',
     amount: '',
-    type: '',
-    balance: 0,
-    income: 0,
-    expenses: 0,
+    type: transactionTypeOptions[0].optionId,
+
+    incomeAmount: 0,
+    expensesAmount: 0,
+    balanceAmount: 0,
   }
 
   titleChange = event => {
@@ -37,43 +38,59 @@ class MoneyManager extends Component {
   }
 
   amountChange = event => {
-    this.setState({amount: event.target.value})
+    this.setState({amount: parseInt(event.target.value)})
   }
 
-  toDelete = id => {
-    this.setState(prevState => ({
-      amountList: prevState.amountList.filter(each => each.id !== id),
-    }))
+  getDelete = id => {
+    const {amountList} = this.state
+    const item = amountList.filter(each => each.id === id)
+
+    if (item[0].typeValue === transactionTypeOptions[0].displayText) {
+      this.setState(prevState => ({
+        amountList: prevState.amountList.filter(each => each.id !== id),
+        incomeAmount: prevState.incomeAmount - item[0].amount,
+        balanceAmount: prevState.balanceAmount - item[0].amount,
+      }))
+    } else if (item[0].typeValue === transactionTypeOptions[1].displayText) {
+      this.setState(prevState => ({
+        amountList: prevState.amountList.filter(each => each.id !== id),
+        expensesAmount: prevState.expensesAmount - item[0].amount,
+        balanceAmount: prevState.balanceAmount + item[0].amount,
+      }))
+    }
   }
 
   toChange = event => {
-    this.setState({type: event.target.value})
+    this.setState({
+      type: event.target.value,
+    })
   }
 
   toSubmit = event => {
     event.preventDefault()
-    const {type, amount, title} = this.state
-    const newList = {id: v4(), title, amount, type}
+    const {title, amount, type} = this.state
+    const newType = transactionTypeOptions.filter(
+      each => each.optionId === type,
+    )
+    const newList = {id: v4(), title, amount, typeValue: newType[0].displayText}
 
-    if (type === 'Income') {
+    if (type === transactionTypeOptions[0].optionId) {
       this.setState(prevState => ({
-        amountList: [...prevState.amountList, newList],
-        title: '',
-        amount: '',
-        balance: prevState.income + amount - prevState.expenses,
-        income: prevState.income + amount,
-        expenses: prevState.expenses,
+        incomeAmount: prevState.incomeAmount + amount,
       }))
-    } else if (type === 'Expenses') {
+    } else if (type === transactionTypeOptions[1].optionId) {
       this.setState(prevState => ({
-        amountList: [...prevState.amountList, newList],
-        title: '',
-        amount: '',
-        balance: prevState.income - (prevState.expenses + amount),
-        income: prevState.income,
-        expenses: prevState.expenses + amount,
+        expensesAmount: prevState.expensesAmount + amount,
       }))
     }
+
+    this.setState(prevState => ({
+      amountList: [...prevState.amountList, newList],
+      title: '',
+      amount: '',
+      type: transactionTypeOptions[0].optionId,
+      balanceAmount: prevState.incomeAmount - prevState.expensesAmount,
+    }))
   }
 
   render() {
@@ -81,12 +98,13 @@ class MoneyManager extends Component {
       amountList,
       title,
       amount,
+
+      expensesAmount,
+      incomeAmount,
+      balanceAmount,
       type,
-      balance,
-      income,
-      expenses,
     } = this.state
-    console.log(amountList)
+
     return (
       <div className="mainSection">
         <div className="nameSection">
@@ -95,45 +113,13 @@ class MoneyManager extends Component {
             welcome back to your <span>Money Manager</span>
           </p>
         </div>
-
         <div className="displaySection">
-          <div className="balanceSection">
-            <img
-              src="https://assets.ccbp.in/frontend/react-js/money-manager/balance-image.png"
-              alt="balance"
-              className="transactionImg"
-            />
-            <div className="headingSection">
-              <h1 className="heading2">Your Balance</h1>
-              <p className="paragraph2">RS {balance}</p>
-            </div>
-          </div>
-
-          <div className="balanceSection">
-            <img
-              src="https://assets.ccbp.in/frontend/react-js/money-manager/income-image.png "
-              alt="income"
-              className="transactionImg"
-            />
-            <div className="headingSection">
-              <h1 className="heading2">Your Income</h1>
-              <p className="paragraph2">RS {income} </p>
-            </div>
-          </div>
-
-          <div className="balanceSection">
-            <img
-              src="https://assets.ccbp.in/frontend/react-js/money-manager/expenses-image.png "
-              alt="expenses"
-              className="transactionImg"
-            />
-            <div className="headingSection">
-              <h1 className="heading2">Your Expenses</h1>
-              <p className="paragraph2">Rs {expenses}</p>
-            </div>
-          </div>
+          <TransactionItem
+            balance={balanceAmount}
+            income={incomeAmount}
+            expenses={expensesAmount}
+          />
         </div>
-
         <div className="formAndListSection">
           <form className="formSection" onSubmit={this.toSubmit}>
             <h1 className="heading3">Add Transactions</h1>
@@ -157,25 +143,32 @@ class MoneyManager extends Component {
             </div>
             <select value={type} onChange={this.toChange}>
               {transactionTypeOptions.map(each => (
-                <TransactionItem
-                  transactionTypeDetails={each}
-                  key={each.displayText}
-                />
+                <option key={each.optionId} value={each.optionId}>
+                  {each.displayText}
+                </option>
               ))}
             </select>
             <button type="submit">Add</button>
           </form>
+          <div className="historySection">
+            <h1>History</h1>
+            <ul className="ulSection">
+              <li className="listSection1">
+                <p className="paragraph3">Title</p>
+                <p className="paragraph3">Amount</p>
+                <p className="paragraph3">Type</p>
+                <p>..</p>
+              </li>
 
-          <ul className="ListSection">
-            <li>
-              <p className="paragraph3">Title</p>
-              <p className="paragraph3">Amount</p>
-              <p className="paragraph3">Type</p>
-            </li>
-            {amountList.map(each => (
-              <MoneyDetails details={each} key={each.id} />
-            ))}
-          </ul>
+              {amountList.map(each => (
+                <MoneyDetails
+                  details={each}
+                  key={each.id}
+                  toDelete={this.getDelete}
+                />
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     )
