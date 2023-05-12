@@ -4,18 +4,24 @@ import './index.css'
 
 const MoneyDetails = props => {
   const {details, toDelete} = props
-  const {id, title, type, amount} = details
+  const {id, title, typeValue, amount} = details
 
   const onDelete = () => {
     toDelete(id)
   }
 
   return (
-    <li>
+    <li className="li">
       <p>{title}</p>
-      <p>{type}</p>
+
       <p>{amount}</p>
-      <button type="button" onClick={onDelete}>
+      <p>{typeValue}</p>
+      <button
+        className="button1"
+        type="button"
+        onClick={onDelete}
+        data-testid="delete"
+      >
         <img
           src="https://assets.ccbp.in/frontend/react-js/money-manager/delete.png"
           alt="delete"
