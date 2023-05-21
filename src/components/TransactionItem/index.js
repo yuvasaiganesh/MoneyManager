@@ -15,7 +15,7 @@ const TransactionItem = props => {
         <div className="headingSection">
           <p className="heading2">Your Balance</p>
           <p data-testid="balanceAmount" className="paragraph2">
-            RS {balance}
+            Rs {balance}
           </p>
         </div>
       </div>
@@ -29,7 +29,7 @@ const TransactionItem = props => {
         <div className="headingSection">
           <p className="heading2">Your Income</p>
           <p data-testid="incomeAmount" className="paragraph2">
-            RS {income}{' '}
+            Rs {income}{' '}
           </p>
         </div>
       </div>
