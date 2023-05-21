@@ -12,10 +12,10 @@ const MoneyDetails = props => {
 
   return (
     <li className="li">
-      <p>{title}</p>
+      <p>Rs {title}</p>
 
-      <p>{amount}</p>
-      <p>{typeValue}</p>
+      <p>Rs {amount}</p>
+      <p>Rs {typeValue}</p>
       <button
         className="button1"
         type="button"
